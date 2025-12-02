@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Resume - AI Resume Screening{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-lg animate-in">
+            <div class="card-header">
+                <h3><i class="bi bi-cloud-upload"></i> Upload Your Resume</h3>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-info mb-4">
+                    <i class="bi bi-info-circle"></i> 
+                    Supported formats: <strong>PDF</strong> and <strong>DOCX</strong> (Maximum 5MB)
+                </div>
+                
+                <form method="POST" enctype="multipart/form-data" class="prevent-double-submit">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="resumeFile" class="form-label">
+                            <i class="bi bi-file-earmark"></i> Select Resume File
+                        </label>
+                        <div class="upload-area" style="border: 2px dashed #0d6efd; border-radius: 8px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.3s ease;" 
+                             id="uploadArea"
+                             ondrop="handleDrop(event)" 
+                             ondragover="handleDragOver(event)" 
+                             ondragleave="handleDragLeave(event)">
+                            <i class="bi bi-cloud-arrow-up" style="font-size: 3rem; color: var(--primary-color);"></i>
+                            <p class="mt-3 mb-0">Drag and drop your resume here</p>
+                            <small class="text-muted">or click to browse</small>
+                        </div>
+                        <input type="file" id="resumeFile" name="resume" accept=".pdf,.docx" style="display:none;" onchange="updateFileName()">
+                        <div id="fileName" class="mt-2"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="form-text text-muted">
+                            <strong>What we'll extract:</strong>
+                            <ul>
+                                <li>Full name and contact information</li>
+                                <li>Skills and proficiency levels</li>
+                                <li>Work experience and companies</li>
+                                <li>Education and certifications</li>
+                                <li>Projects and achievements</li>
+                                <li>Keyword insights</li>
+                            </ul>
+                        </small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <i class="bi bi-upload"></i> Upload & Parse Resume
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('resumeFile');
+    
+    uploadArea.addEventListener('click', () => fileInput.click());
+    
+    function handleDragOver(e) {
+        e.preventDefault();
+        uploadArea.style.background = '#f0f8ff';
+        uploadArea.style.borderColor = '#0b5ed7';
+    }
+    
+    function handleDragLeave(e) {
+        uploadArea.style.background = 'white';
+        uploadArea.style.borderColor = '#0d6efd';
+    }
+    
+    function handleDrop(e) {
+        e.preventDefault();
+        uploadArea.style.background = 'white';
+        uploadArea.style.borderColor = '#0d6efd';
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            updateFileName();
+        }
+    }
+    
+    function updateFileName() {
+        const fileName = document.getElementById('fileName');
+        if (fileInput.files.length > 0) {
+            fileName.innerHTML = `<div class="alert alert-success"><i class="bi bi-check-circle"></i> File selected: ${fileInput.files[0].name}</div>`;
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - AI Resume Screening{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-5 col-md-7">
+        <div class="card shadow-lg mt-5 animate-in">
+            <div class="card-header text-center">
+                <h3><i class="bi bi-person-plus"></i> Create Your Account</h3>
+                <p class="mb-0" style="font-size: 0.9rem; opacity: 0.9;">Join our platform to manage your resume and find jobs</p>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" class="prevent-double-submit">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-person"></i> First Name</label>
+                        {{ form.first_name }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-person"></i> Last Name</label>
+                        {{ form.last_name }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-envelope"></i> Email</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-lock"></i> Password</label>
+                        {{ form.password1 }}
+                        {% if form.password1.help_text %}
+                            <small class="form-text" style="display: block; margin-top: 0.5rem; color: #666;">
+                                {{ form.password1.help_text|safe }}
+                            </small>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-lock-check"></i> Confirm Password</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                            <div class="text-danger small mt-1">{{ form.password2.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 mb-3">
+                        <i class="bi bi-person-plus"></i> Register
+                    </button>
+                </form>
+                
+                <hr>
+                
+                <p class="text-center mb-0">
+                    Already have an account? 
+                    <a href="{% url 'login' %}" class="text-decoration-none">Login here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

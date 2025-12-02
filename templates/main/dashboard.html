@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - AI Resume Screening{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="mb-2"><i class="bi bi-speedometer2"></i> Dashboard</h1>
+        <p class="text-muted">Welcome back! Here's your resume screening overview.</p>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6">
+        <div class="stats-card">
+            <div class="stats-number">{{ resume_score|floatformat:0 }}%</div>
+            <div class="stats-label">Resume Score</div>
+            <small>Overall profile completeness</small>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stats-card">
+            <div class="stats-number">{{ skills_count }}</div>
+            <div class="stats-label">Skills</div>
+            <small>Detected from resume</small>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stats-card">
+            <div class="stats-number">{{ jobs_count }}</div>
+            <div class="stats-label">Job Results</div>
+            <small>Recommended jobs</small>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stats-card">
+            <div class="stats-number">{{ saved_jobs_count }}</div>
+            <div class="stats-label">Saved Jobs</div>
+            <small>Your bookmarks</small>
+        </div>
+    </div>
+</div>
+
+<!-- Actions Row -->
+<div class="row">
+    <div class="col-lg-4 mb-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="bi bi-cloud-upload" style="font-size: 3rem; color: var(--primary-color);"></i>
+                <h5 class="card-title mt-3">Upload Resume</h5>
+                <p class="card-text">Upload or update your resume for parsing</p>
+                <a href="{% url 'upload_resume' %}" class="btn btn-primary">Upload Now</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="bi bi-file-earmark-text" style="font-size: 3rem; color: #198754;"></i>
+                <h5 class="card-title mt-3">Resume Details</h5>
+                <p class="card-text">View your parsed resume information</p>
+                {% if has_resume %}
+                    <a href="{% url 'resume_details' %}" class="btn btn-success">View Details</a>
+                {% else %}
+                    <button class="btn btn-success" disabled>No Resume</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="bi bi-briefcase" style="font-size: 3rem; color: #0dcaf0;"></i>
+                <h5 class="card-title mt-3">Find Jobs</h5>
+                <p class="card-text">Discover recommended job opportunities</p>
+                {% if has_resume %}
+                    <a href="{% url 'job_recommendations' %}" class="btn btn-info">Find Jobs</a>
+                {% else %}
+                    <button class="btn btn-info" disabled>Upload Resume First</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Resume Status -->
+{% if has_resume %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-clipboard-check"></i> Resume Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Name:</strong> {{ resume.full_name|default:"Not Found" }}</p>
+                        <p><strong>Email:</strong> {{ resume.email|default:"Not Found" }}</p>
+                        <p><strong>Phone:</strong> {{ resume.phone|default:"Not Found" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>File Type:</strong> <span class="badge bg-info">{{ resume.file_type|upper }}</span></p>
+                        <p><strong>Uploaded:</strong> {{ resume.uploaded_at|date:"M d, Y" }}</p>
+                        <p><strong>Updated:</strong> {{ resume.updated_at|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="alert alert-info" role="alert">
+            <i class="bi bi-info-circle"></i> No resume found. 
+            <a href="{% url 'upload_resume' %}" class="alert-link">Upload your resume now</a> to get started.
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

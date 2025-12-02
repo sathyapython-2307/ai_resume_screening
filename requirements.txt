@@ -1,0 +1,11 @@
+django
+python-docx
+spacy
+nltk
+requests
+pillow
+python-pptx
+PyPDF2
+# Add runtime requirements for deployment
+gunicorn
+whitenoise

@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+
+{% block title %}Resume Details - AI Resume Screening{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="mb-2"><i class="bi bi-file-earmark-text"></i> Resume Details</h1>
+        <p class="text-muted">Your parsed resume information and extracted data</p>
+    </div>
+</div>
+
+<!-- Score Card -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <div class="score-badge">{{ resume.resume_score|floatformat:0 }}</div>
+                <h5 class="mt-3">Resume Score</h5>
+                <small class="text-muted">Overall profile quality</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-9">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-person"></i> Personal Information</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Full Name:</strong><br>{{ resume.full_name|default:"Not Found" }}</p>
+                        <p><strong>Email:</strong><br><a href="mailto:{{ resume.email }}">{{ resume.email|default:"Not Found" }}</a></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Phone:</strong><br>{{ resume.phone|default:"Not Found" }}</p>
+                        <p><strong>Resume Type:</strong><br><span class="badge bg-primary">{{ resume.file_type|upper }}</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Skills -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-lightning"></i> Skills ({{ skills.count }})</h5>
+            </div>
+            <div class="card-body">
+                {% if skills %}
+                    <div class="row">
+                        {% for skill in skills %}
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; border-left: 3px solid var(--primary-color);">
+                                    <strong>{{ skill.name }}</strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        {% if skill.proficiency == 'expert' %}
+                                            <span class="badge bg-success">Expert</span>
+                                        {% elif skill.proficiency == 'advanced' %}
+                                            <span class="badge bg-info">Advanced</span>
+                                        {% elif skill.proficiency == 'intermediate' %}
+                                            <span class="badge bg-warning">Intermediate</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Beginner</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No skills extracted from resume.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Experience -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-briefcase"></i> Experience</h5>
+            </div>
+            <div class="card-body">
+                {% if resume.experience %}
+                    {% for exp in resume.experience %}
+                        <div class="mb-3 p-3" style="background: #f8f9fa; border-radius: 8px; border-left: 3px solid var(--success-color);">
+                            <h6 class="mb-0">{{ exp.company }}</h6>
+                            <small class="text-muted">{{ exp.designation }} | {{ exp.duration }}</small>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No experience data extracted.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Education -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-mortarboard"></i> Education</h5>
+            </div>
+            <div class="card-body">
+                {% if resume.education %}
+                    {% for edu in resume.education %}
+                        <div class="mb-3 p-3" style="background: #f8f9fa; border-radius: 8px; border-left: 3px solid #0dcaf0;">
+                            <h6 class="mb-0">{{ edu.degree }} in {{ edu.field }}</h6>
+                            <small class="text-muted">{{ edu.institution }} | {{ edu.year }}</small>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No education data extracted.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Certifications -->
+{% if resume.certifications %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-award"></i> Certifications</h5>
+            </div>
+            <div class="card-body">
+                {% for cert in resume.certifications %}
+                    <span class="badge bg-success mb-2">{{ cert.name }} ({{ cert.year }})</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Projects -->
+{% if resume.projects %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-code-square"></i> Projects</h5>
+            </div>
+            <div class="card-body">
+                {% for project in resume.projects %}
+                    <div class="mb-3 p-3" style="background: #f8f9fa; border-radius: 8px;">
+                        <h6 class="mb-1">{{ project.name }}</h6>
+                        <small>{{ project.description }}</small>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Keywords -->
+{% if resume.keyword_insights %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-tags"></i> Top Keywords</h5>
+            </div>
+            <div class="card-body">
+                {% for keyword in resume.keyword_insights %}
+                    <span class="skill-tag">{{ keyword.keyword }} ({{ keyword.frequency }})</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{% url 'upload_resume' %}" class="btn btn-primary">
+            <i class="bi bi-cloud-upload"></i> Update Resume
+        </a>
+        <a href="{% url 'job_recommendations' %}" class="btn btn-success">
+            <i class="bi bi-briefcase"></i> Find Matching Jobs
+        </a>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#clearResumeModal">
+            <i class="bi bi-trash"></i> Clear Resume
+        </button>
+    </div>
+</div>
+
+<!-- Clear Resume Modal -->
+<div class="modal fade" id="clearResumeModal" tabindex="-1" aria-labelledby="clearResumeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="clearResumeModalLabel">
+                    <i class="bi bi-exclamation-triangle"></i> Clear Resume
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Are you sure you want to clear your resume?</strong></p>
+                <p class="text-muted mb-0">This action will permanently delete:</p>
+                <ul class="text-muted">
+                    <li>Your resume data and parsing information</li>
+                    <li>All extracted skills, experience, education, and projects</li>
+                    <li>Associated job recommendations</li>
+                </ul>
+                <p class="text-danger mt-3 mb-0"><strong>This action cannot be undone!</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </button>
+                <form method="POST" action="{% url 'clear_resume' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Yes, Clear Resume
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

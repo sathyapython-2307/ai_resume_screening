@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+
+{% block title %}Job Recommendations - AI Resume Screening{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="mb-2"><i class="bi bi-briefcase"></i> Job Recommendations</h1>
+        <p class="text-muted">Personalized job opportunities based on your resume skills</p>
+    </div>
+</div>
+
+<!-- API Key Warning -->
+{% if not api_key_configured %}
+<div class="alert alert-warning alert-dismissible fade show mb-4">
+    <i class="bi bi-exclamation-triangle"></i>
+    <strong>API Key Not Configured!</strong> Please contact admin to configure JSearch API key.
+</div>
+{% endif %}
+
+<!-- Search Form -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-funnel"></i> Search & Filter</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" class="prevent-double-submit">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Keyword</label>
+                            {{ form.keyword }}
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Location</label>
+                            {{ form.location }}
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Job Type</label>
+                            {{ form.job_type }}
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Minimum Match Score</label>
+                            {{ form.min_match_score }}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i> Search Jobs
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Count -->
+<div class="row mb-3">
+    <div class="col-12">
+        <p class="text-muted">Found <strong>{{ total_jobs }}</strong> matching job(s)</p>
+    </div>
+</div>
+
+<!-- Job Results -->
+{% if page_obj %}
+    {% for job in page_obj %}
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="job-card">
+                    <div class="row">
+                        <div class="col-md-9">
+                            <div class="job-title">{{ job.title }}</div>
+                            <div class="job-company">
+                                <i class="bi bi-building"></i> {{ job.company }}
+                            </div>
+                            <div class="job-meta">
+                                {% if job.location %}
+                                    <span><i class="bi bi-geo-alt"></i> {{ job.location }}</span>
+                                {% endif %}
+                                {% if job.salary %}
+                                    <span><i class="bi bi-cash"></i> {{ job.salary }}</span>
+                                {% endif %}
+                                {% if job.job_type %}
+                                    <span><span class="badge bg-info">{{ job.job_type }}</span></span>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Matching Skills -->
+                            {% if job.matching_skills %}
+                                <div class="mt-2">
+                                    <small class="text-muted">Matching Skills:</small><br>
+                                    {% for skill in job.matching_skills %}
+                                        <span class="skill-tag">{{ skill }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 text-md-end">
+                            <div class="mb-3">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 2rem; font-weight: 700; color: var(--primary-color);">
+                                        {{ job.match_score|floatformat:0 }}%
+                                    </div>
+                                    <small class="text-muted">Match Score</small>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <a href="{{ job.apply_link }}" target="_blank" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-box-arrow-up-right"></i> Apply
+                                </a>
+                                {% if job.job_id in saved_job_ids %}
+                                    <button class="btn btn-warning btn-sm" onclick="unsaveJob('{{ job.job_id }}')">
+                                        <i class="bi bi-bookmark-fill"></i> Saved
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-outline-warning btn-sm" onclick="saveJob('{{ job.job_id }}')">
+                                        <i class="bi bi-bookmark"></i> Save
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% else %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+{% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle"></i> No jobs found. Try adjusting your search criteria.
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<script>
+    function saveJob(jobId) {
+        fetch(`/save-job/${jobId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Job saved successfully!');
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
+    function unsaveJob(jobId) {
+        if (confirm('Remove this job from saved?')) {
+            fetch(`/unsave-job/${jobId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Job removed!');
+                    location.reload();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    }
+</script>
+{% endblock %}
