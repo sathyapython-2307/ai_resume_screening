@@ -12,11 +12,11 @@ class UserRegistrationForm(UserCreationForm):
     }))
     first_name = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs={
         'class': 'form-control',
-        'placeholder': 'First Name'
+        'placeholder': 'Enter your first name'
     }))
     last_name = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs={
         'class': 'form-control',
-        'placeholder': 'Last Name'
+        'placeholder': 'Enter your last name'
     }))
     
     class Meta:
@@ -28,11 +28,11 @@ class UserRegistrationForm(UserCreationForm):
         
         self.fields['password1'].widget = forms.PasswordInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Password'
+            'placeholder': 'Enter your password'
         })
         self.fields['password2'].widget = forms.PasswordInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Confirm Password'
+            'placeholder': 'Confirm your password'
         })
     
     def clean_email(self):
@@ -40,6 +40,24 @@ class UserRegistrationForm(UserCreationForm):
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError("This email is already registered.")
         return email
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        email = self.cleaned_data.get('email')
+        # Generate username from email (take part before @)
+        base_username = email.split('@')[0]
+        username = base_username
+        counter = 1
+        
+        # Ensure username is unique
+        while User.objects.filter(username=username).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
+        
+        user.username = username
+        if commit:
+            user.save()
+        return user
 
 
 class UserLoginForm(forms.Form):
